@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>লাইভ ক্যামেরা ডেমো</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #222; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        video { width: 90%; max-width: 500px; border: 3px solid #0f0; border-radius: 10px; box-shadow: 0 0 20px rgba(0,255,0,0.5); margin-bottom: 20px; }
+        h2 { color: #0f0; }
+        .info { background: #333; padding: 10px; border-radius: 5px; margin-top: 10px; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+    <h2>📷 লাইভ স্ট্রিমিং</h2>
+    <!-- ভিডিও প্লেয়ার -->
+    <video id="webcam" autoplay playsinline></video>
+    
+    <div class="info">
+        <p>📍 লোকেশন: <span id="location">সংগ্রহ হচ্ছে...</span></p>
+        <p>⏱️ সময়: <span id="time"></span></p>
+    </div>
+
+    <script>
+        // ১. ক্যামেরা এক্সেস এবং ভিডিও স্ট্রিমিং
+        async function startCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: "user" }, // ফ্রন্ট ক্যামেরা
+                    audio: true 
+                });
+                const videoElement = document.getElementById('webcam');
+                videoElement.srcObject = stream;
+                console.log("ক্যামেরা চালু হয়েছে");
+            } catch (err) {
+                console.error("ক্যামেরা এক্সেস ব্যর্থ:", err);
+                alert("ক্যামেরা এক্সেস করতে সমস্যা হচ্ছে। অনুমতি দিন!");
+            }
+        }
+
+        // ২. লোকেশন সংগ্রহ
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    document.getElementById('location').innerText = `${lat}, ${lon}`;
+                    
+                    // লোকেশন ম্যাপে দেখানোর জন্য (গুগল ম্যাপ লিংক)
+                    const mapLink = `<a href="https://www.google.com/maps?q=${lat},${lon}" target="_blank" style="color:#0f0;">ম্যাপে দেখুন</a>`;
+                    document.getElementById('location').innerHTML += ` <br>${mapLink}`;
+                });
+            } else {
+                document.getElementById('location').innerText = "লোকেশন সাপোর্ট করে না";
+            }
+        }
+
+        // ৩. সময় আপডেট করা
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('time').innerText = now.toLocaleTimeString();
+        }, 1000);
+
+        // পেজ লোড হলেই শুরু হবে
+        window.onload = () => {
+            startCamera();
+            getLocation();
+        };
+    </script>
+</body>
+</html>
